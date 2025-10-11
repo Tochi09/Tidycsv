@@ -251,3 +251,41 @@ button:hover {
     max-width: none;
   }
 }
+
+
+
+/* Add your custom styles below */
+
+.contact-input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #e6eef6;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Add your custom styles below */
+
+.contact-input[type="email"] {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #e6eef6;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Add your CSS styles here */
+
+.contact-textarea {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #e6eef6;
+  border-radius: 6px;
+}
+
+
+/* Add your CSS styles below */
+
+.contact-direct {
+  margin-top: 1.5rem;
+}
