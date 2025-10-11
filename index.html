@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <meta name="description" content="Learn how to remove duplicate rows and clean your CSV files online using TidyCSV — a free, secure in-browser tool for data cleanup.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-container">
+      <a class="brand" href="/">TidyCSV</a><br><br>
+      <p class="tag">Clean & dedupe CSVs online — fast, private, free.</p>
+    </div>
+    <nav class="nav-links">
+      <a href="how-to-remove-duplicates-csv.html">Remove Duplicates</a>
+      <a href="clean-csv-online.html">Clean CSV Online</a>
+      <a href="remove-empty-rows-csv.html">Remove Empty Rows</a>
+      <a href="/contact.html">Contact Us</a>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Use</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="tool-card">
+      <h1>Upload or paste your CSV / text list</h1>
+
+      <div class="row">
+        <div class="col">
+          <label class="file-drop" id="dropArea">
+            <input type="file" id="fileInput" accept=".csv,.txt" />
+            <div class="drop-message">Drag & drop a CSV or click to choose</div>
+          </label>
+
+          <label class="label">Or paste your data below</label>
+          <textarea class="textarea1" id="textInput" placeholder="Paste CSV or newline-separated list here"></textarea>
+        </div>
+
+        <aside class="col options">
+          <h3>Cleaning options</h3>
+          <label><input type="checkbox" id="hasHeader" checked> First row is a header</label><br>
+          <label><input type="checkbox" id="trimSpaces" checked> Trim whitespace</label><br>
+          <label><input type="checkbox" id="removeEmpty" checked> Remove empty rows</label><br>
+          <label><input type="checkbox" id="removeDuplicates" checked> Remove duplicate rows</label><br><br>
+
+          <label for="dedupeColumn">Dedupe by column (0 = first column, leave blank to dedupe whole row)</label>
+          <input type="number" id="dedupeColumn" min="0" placeholder="e.g. 2" />
+
+          <div class="actions">
+            <button id="cleanBtn">Clean Data</button>
+            <button id="downloadBtn">Download CSV</button>
+            <button id="copyBtn">Copy to clipboard</button>
+          </div>
+
+          <div class="stats" id="stats"></div>
+        </aside>
+      </div>
+
+      <section class="preview">
+        <h2>Preview (first 100 rows)</h2>
+        <textarea class="textarea2" id="output" readonly></textarea>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2025 TidyCSV — Built with ♥. Images and data are not uploaded to servers; processing happens in your browser.</p>
+    </div>
+  </footer>
+
+  <script src="/java/script.js" defer></script>
+</body>
+</html>

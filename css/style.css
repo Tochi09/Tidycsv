@@ -1,0 +1,253 @@
+/* ===================================
+   🌐 GLOBAL STYLES
+=================================== */
+:root {
+  --accent: #0ea5e9;
+  --accent-dark: #0284c7;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --muted: #64748b;
+  --text: #0f172a;
+  --link: #0284c7;
+  --link-hover: #0369a1;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 18px;
+}
+
+/* ===================================
+   🔠 TEXT & LINK STYLES
+=================================== */
+p, li, label {
+  font-size: 1.1rem;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+a:hover {
+  color: var(--link-hover);
+  border-bottom: 1px solid var(--link-hover);
+}
+
+/* ===================================
+   🏗️ HEADER
+=================================== */
+.site-header {
+  background: linear-gradient(90deg, var(--accent), #3b82f6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.nav-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.9rem;
+  letter-spacing: 0.4px;
+}
+
+.tag {
+  margin-top: 0.25rem;
+  color: rgba(255,255,255,0.9);
+  font-size: 1.05rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: #f1f5f9;
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-bottom: none;
+
+}
+
+/* ===================================
+   📦 CONTAINERS & LAYOUT
+=================================== */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.tool-card {
+  background: var(--card);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+  margin-top: 2rem;
+}
+
+/* ===================================
+   🧩 HEADINGS
+=================================== */
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-top: 1.5rem;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+/* ===================================
+   ⚙️ TOOL UI
+=================================== */
+.row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.col {
+  flex: 1;
+}
+
+.options {
+  max-width: 340px;
+}
+
+.file-drop {
+  display: block;
+  border: 2px dashed #dbeafe;
+  padding: 1.25rem;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.file-drop:hover {
+  border-color: var(--accent);
+}
+
+.drop-message {
+  color: var(--muted);
+}
+
+.textarea1, .textarea2 {
+  width: 100%;
+  min-height: 180px;
+  padding: 0.9rem;
+  border: 1px solid #e6eef6;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: var(--accent-dark);
+}
+
+.preview {
+  margin-top: 2rem;
+}
+
+.stats {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-top: 0.6rem;
+}
+
+/* ===================================
+   ⚓ FOOTER
+=================================== */
+.site-footer {
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--muted);
+  margin-top: 3rem;
+  font-size: 1rem;
+}
+
+/* ===================================
+   📱 RESPONSIVE
+=================================== */
+@media (max-width: 900px) {
+  .site-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .options {
+    max-width: none;
+  }
+}

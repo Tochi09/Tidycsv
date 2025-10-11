@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us | TidyCSV</title>
+  <meta name="description" content="Contact the TidyCSV team for questions, suggestions, or feedback about our free CSV cleaning tool.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-container">
+      <a class="brand" href="/">TidyCSV</a><br><br>
+      <p class="tag">Clean & dedupe CSVs online — fast, private, free.</p>
+    </div>
+    <nav class="nav-links">
+      <a href="how-to-remove-duplicates-csv.html">Remove Duplicates</a>
+      <a href="clean-csv-online.html">Clean CSV Online</a>
+      <a href="remove-empty-rows-csv.html">Remove Empty Rows</a>
+      <a href="about.html">About</a>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Use</a>
+      <a href="contact.html" class="active">Contact Us</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Contact Us</h1>
+    <p>We’d love to hear from you! Whether you have questions, feedback, or ideas for improving <strong>TidyCSV</strong>, feel free to reach out.</p>
+
+    <!-- ✅ Netlify Form -->
+    <form class="tool-card" name="contact" method="POST" data-netlify="true" action="/success.html">
+      <input type="hidden" name="form-name" value="contact" />
+
+      <label for="name">Your Name</label><br>
+      <input type="text" id="name" name="name" required style="width:100%;padding:0.7rem;border:1px solid #e6eef6;border-radius:6px;margin-bottom:1rem;"><br>
+
+      <label for="email">Your Email</label><br>
+      <input type="email" id="email" name="email" required style="width:100%;padding:0.7rem;border:1px solid #e6eef6;border-radius:6px;margin-bottom:1rem;"><br>
+
+      <label for="message">Message</label><br>
+      <textarea id="message" name="message" required rows="5" style="width:100%;padding:0.7rem;border:1px solid #e6eef6;border-radius:6px;"></textarea><br><br>
+
+      <button type="submit">Send Message</button>
+    </form>
+
+    <p style="margin-top:1.5rem;">Or click <a href="mailto:tochukwub65@gmail.com">here</a> to reach us directly.</p>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2025 TidyCSV — Clean your CSV files safely and instantly.</p>
+  </footer>
+</body>
+</html>
