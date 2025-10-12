@@ -41,4 +41,9 @@
     <priority>0.4</priority>
   </url>
 
+  <url>
+    <loc>https://tidycsv.netlify.app/success</loc>
+    <priority>0.3</priority>
+  </url>
+
 </urlset>
