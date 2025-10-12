@@ -82,7 +82,7 @@ function cleanRows(rows, opts) {
   const originalCount = rows.length;
   let cleaned = rows.map(r => r.map(c => c.trim()));
 
-  // Step 1: Normalize cells
+  // Step 1: Normalize text (spaces, casing)
   if (opts.trimSpaces) {
     cleaned = cleaned.map(row => row.map(cell => normalizeCell(cell)));
   }
@@ -92,33 +92,34 @@ function cleanRows(rows, opts) {
     cleaned = cleaned.filter(row => row.join('').trim().length > 0);
   }
 
-  // Step 3: Smart deduplication
+  // Step 3: Smart Deduplication (with Email Priority + Name Simplification)
   if (opts.removeDuplicates) {
     const seen = new Map();
 
     for (let row of cleaned) {
-      // Try to find an email column (first one with @)
+      // Find the email column (first value containing "@")
       const emailIndex = row.findIndex(v => v.includes('@'));
       const email = emailIndex !== -1 ? (row[emailIndex] || '').toLowerCase().trim() : '';
 
-      // Create a flexible key
-      let key = email || (
-        opts.dedupeColumn === null
-          ? row.join('|').toLowerCase()
-          : (row[opts.dedupeColumn] || '').toLowerCase().trim()
-      );
+      // Simplify entire row for non-email comparison
+      const simplifiedRow = row
+        .join('|')
+        .toLowerCase()
+        .replace(/[\s.,'"-]+/g, ' ') // remove punctuation
+        .replace(/\s+/g, ' ') // normalize spaces
+        .trim();
 
-      // Also normalize non-email data for fair comparison
-      key = key.replace(/[\s.,'"-]+/g, ' ').trim();
+      // If we have an email, use it as the main dedupe key
+      const key = email || simplifiedRow;
 
       if (seen.has(key)) {
         const existing = seen.get(key);
 
-        // If same email but one has uppercase → prefer lowercase
+        // ⚖️ Prefer lowercase emails over uppercase ones
         if (email && existing[emailIndex]) {
-          const oldEmail = existing[emailIndex];
-          if (/[A-Z]/.test(oldEmail) && oldEmail.toLowerCase() === email) {
-            seen.set(key, row);
+          const existingEmail = existing[emailIndex];
+          if (/[A-Z]/.test(existingEmail) && existingEmail.toLowerCase() === email) {
+            seen.set(key, row); // replace old row with lowercase email version
           }
         }
       } else {
