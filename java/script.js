@@ -1,4 +1,4 @@
-// Advanced CSV Cleaner — In-Browser, Privacy Safe
+// 🚀 Advanced CSV Cleaner — Handles quotes, commas, case normalization, deduping
 const fileInput = document.getElementById('fileInput');
 const textInput = document.getElementById('textInput');
 const cleanBtn = document.getElementById('cleanBtn');
@@ -8,48 +8,69 @@ const copyBtn = document.getElementById('copyBtn');
 const stats = document.getElementById('stats');
 
 /* ============================
-   CSV Parsing & Cleaning Utils
+   🧠 CSV Parsing (Proper)
 ============================ */
-
 function parseCSV(text) {
-  // Handles commas inside quotes — more robust than naive split
   const rows = [];
   let row = [], current = '', inQuotes = false;
+
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    if (char === '"') {
+    const next = text[i + 1];
+
+    if (char === '"' && next === '"') { 
+      current += '"'; 
+      i++; 
+    } 
+    else if (char === '"') {
       inQuotes = !inQuotes;
-    } else if (char === ',' && !inQuotes) {
+    } 
+    else if (char === ',' && !inQuotes) {
       row.push(current.trim());
       current = '';
-    } else if (char === '\n' && !inQuotes) {
-      row.push(current.trim());
-      rows.push(row);
-      row = [];
-      current = '';
-    } else {
+    } 
+    else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (current || row.length) {
+        row.push(current.trim());
+        rows.push(row);
+        row = [];
+        current = '';
+      }
+    } 
+    else {
       current += char;
     }
   }
-  if (current.length > 0 || row.length > 0) row.push(current.trim());
-  if (row.length > 0) rows.push(row);
-  return rows;
+
+  if (current || row.length) {
+    row.push(current.trim());
+    rows.push(row);
+  }
+
+  // Remove blank lines
+  return rows.filter(r => r.join('').trim().length > 0);
 }
 
+/* ============================
+   🧹 CSV to Text
+============================ */
 function toCSV(rows) {
-  return rows.map(r => 
-    r.map(cell => {
-      if (cell.includes(',') || cell.includes('"') || cell.includes('\n')) {
-        return `"${cell.replace(/"/g, '""')}"`;
-      }
-      return cell;
+  return rows.map(row =>
+    row.map(cell => {
+      if (cell == null) return '';
+      cell = cell.toString().trim();
+      return /[",\n]/.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell;
     }).join(',')
   ).join('\n');
 }
 
+/* ============================
+   ✨ Normalization Helpers
+============================ */
 function normalizeCell(value) {
-  // Remove extra spaces, normalize casing (Title Case for words)
+  if (!value) return '';
   value = value.trim().replace(/\s+/g, ' ');
+  // Title Case only if it’s mostly alphabetic
   if (/^[a-z\s]+$/i.test(value)) {
     return value
       .split(' ')
@@ -59,11 +80,13 @@ function normalizeCell(value) {
   return value;
 }
 
+/* ============================
+   🧼 Cleaning Logic
+============================ */
 function cleanRows(rows, opts) {
   const originalCount = rows.length;
-  let cleaned = rows;
+  let cleaned = rows.map(r => r.map(c => c.trim()));
 
-  // Trim, normalize
   if (opts.trimSpaces) {
     cleaned = cleaned.map(row => row.map(cell => normalizeCell(cell)));
   }
@@ -73,17 +96,17 @@ function cleanRows(rows, opts) {
     cleaned = cleaned.filter(row => row.join('').trim().length > 0);
   }
 
-  // Case-insensitive dedupe
+  // Dedupe (case-insensitive)
   if (opts.removeDuplicates) {
     const seen = new Set();
     const deduped = [];
-    for (const row of cleaned) {
-      let key;
-      if (opts.dedupeColumn === null) {
-        key = row.join(',').toLowerCase();
-      } else {
-        key = (row[opts.dedupeColumn] || '').toLowerCase().trim();
-      }
+    for (let i = 0; i < cleaned.length; i++) {
+      const row = cleaned[i];
+      const key =
+        opts.dedupeColumn === null
+          ? row.join('|').toLowerCase()
+          : (row[opts.dedupeColumn] || '').toLowerCase().trim();
+
       if (!seen.has(key)) {
         seen.add(key);
         deduped.push(row);
@@ -96,9 +119,8 @@ function cleanRows(rows, opts) {
 }
 
 /* ============================
-   UI Logic
+   ⚙️ Button Logic
 ============================ */
-
 cleanBtn.addEventListener('click', () => {
   const hasHeader = document.getElementById('hasHeader').checked;
   const trimSpaces = document.getElementById('trimSpaces').checked;
@@ -112,20 +134,19 @@ cleanBtn.addEventListener('click', () => {
 
   let rows = parseCSV(text);
   let header = null;
-
   if (hasHeader && rows.length > 0) {
     header = rows.shift();
   }
 
   const result = cleanRows(rows, { trimSpaces, removeEmpty, removeDuplicates, dedupeColumn });
-  const outputRows = header ? [header, ...result.rows] : result.rows;
+  const finalRows = header ? [header, ...result.rows] : result.rows;
 
-  output.value = toCSV(outputRows.slice(0, 100));
+  output.value = toCSV(finalRows.slice(0, 100));
   stats.textContent = `Rows: ${result.originalCount} → ${result.cleanCount}`;
 });
 
 /* ============================
-   File Handling
+   📂 File Handling
 ============================ */
 fileInput.addEventListener('change', e => {
   const f = e.target.files[0];
@@ -136,7 +157,7 @@ fileInput.addEventListener('change', e => {
 });
 
 /* ============================
-   Download / Copy
+   💾 Download & Copy
 ============================ */
 downloadBtn.addEventListener('click', () => {
   const text = output.value || textInput.value;
@@ -162,24 +183,27 @@ copyBtn.addEventListener('click', async () => {
 });
 
 /* ============================
-   Drag & Drop
+   📥 Drag & Drop
 ============================ */
 const dropArea = document.getElementById('dropArea');
-['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, e => {
-  e.preventDefault();
-  e.stopPropagation();
-  dropArea.classList.add('dragging');
-}));
-['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, e => {
-  e.preventDefault();
-  e.stopPropagation();
-  dropArea.classList.remove('dragging');
-}));
-
+['dragenter', 'dragover'].forEach(ev =>
+  dropArea.addEventListener(ev, e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropArea.classList.add('dragging');
+  })
+);
+['dragleave', 'drop'].forEach(ev =>
+  dropArea.addEventListener(ev, e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropArea.classList.remove('dragging');
+  })
+);
 dropArea.addEventListener('drop', e => {
   const f = e.dataTransfer.files[0];
   if (!f) return;
   const reader = new FileReader();
-  reader.onload = ev => textInput.value = ev.target.result;
+  reader.onload = ev => (textInput.value = ev.target.result);
   reader.readAsText(f);
 });
