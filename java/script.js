@@ -186,7 +186,7 @@ copyBtn.addEventListener('click', async () => {
 });
 
 /* ============================
-   📥 Drag & Drop
+   📥 Drag & Drop.
 ============================ */
 const dropArea = document.getElementById('dropArea');
 ['dragenter', 'dragover'].forEach(ev =>
