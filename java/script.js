@@ -65,14 +65,37 @@ function toCSV(rows) {
 function normalizeCell(value) {
   if (!value) return '';
   value = value.trim().replace(/\s+/g, ' ');
-  // Proper case for mostly text
-  if (/^[a-z\s]+$/i.test(value)) {
-    return value
-      .split(' ')
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-      .join(' ');
-  }
   return value;
+}
+
+function normalizeCountry(country) {
+  if (!country) return '';
+  country = country.trim().toUpperCase();
+  // Handle common variants
+  if (country === 'US' || country === 'USA' || country === 'UNITED STATES') return 'USA';
+  if (country === 'UK' || country === 'UNITED KINGDOM' || country === 'ENGLAND') return 'UK';
+  if (country === 'CA' || country === 'CAN' || country === 'CANADA') return 'CANADA';
+  return country;
+}
+
+function normalizeOccupation(occ) {
+  if (!occ) return '';
+  occ = occ.trim();
+
+  // Acronyms stay uppercase
+  const upperAcronyms = ['CEO', 'CTO', 'CFO', 'UI/UX', 'HR', 'IT', 'PM'];
+  if (upperAcronyms.includes(occ.toUpperCase())) return occ.toUpperCase();
+
+  // Proper case for regular roles
+  return occ
+    .split(' ')
+    .map(w => {
+      const word = w.trim();
+      if (!word) return '';
+      if (upperAcronyms.includes(word.toUpperCase())) return word.toUpperCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
 }
 
 /* ============================
@@ -82,57 +105,57 @@ function cleanRows(rows, opts) {
   const originalCount = rows.length;
   let cleaned = rows.map(r => r.map(c => c.trim()));
 
-  // Step 1: Normalize text (spaces, casing)
   if (opts.trimSpaces) {
     cleaned = cleaned.map(row => row.map(cell => normalizeCell(cell)));
   }
 
-  // Step 2: Remove empty rows
   if (opts.removeEmpty) {
     cleaned = cleaned.filter(row => row.join('').trim().length > 0);
   }
 
-  // Step 3: Smart Deduplication (with Email Priority + Name Simplification)
+  // Detect likely column indexes by header
+  const header = rows[0] || [];
+  const emailIndex = header.findIndex(h => /email/i.test(h));
+  const countryIndex = header.findIndex(h => /country/i.test(h));
+  const occIndex = header.findIndex(h => /occupation|job|title/i.test(h));
+
+  // Normalize countries & occupations if columns exist
+  cleaned = cleaned.map((row, i) => {
+    if (countryIndex !== -1 && row[countryIndex])
+      row[countryIndex] = normalizeCountry(row[countryIndex]);
+    if (occIndex !== -1 && row[occIndex])
+      row[occIndex] = normalizeOccupation(row[occIndex]);
+    return row;
+  });
+
+  // Deduplication with lowercase email preference
   if (opts.removeDuplicates) {
     const seen = new Map();
-
     for (let row of cleaned) {
-      // Find the email column (first value containing "@")
-      const emailIndex = row.findIndex(v => v.includes('@'));
       const email = emailIndex !== -1 ? (row[emailIndex] || '').toLowerCase().trim() : '';
-
-      // Simplify entire row for non-email comparison
       const simplifiedRow = row
         .join('|')
         .toLowerCase()
-        .replace(/[\s.,'"-]+/g, ' ') // remove punctuation
-        .replace(/\s+/g, ' ') // normalize spaces
+        .replace(/[\s.,'"-]+/g, ' ')
+        .replace(/\s+/g, ' ')
         .trim();
-
-      // If we have an email, use it as the main dedupe key
       const key = email || simplifiedRow;
 
       if (seen.has(key)) {
         const existing = seen.get(key);
-
-        // ⚖️ Prefer lowercase emails over uppercase ones
-        if (email && existing[emailIndex]) {
-          const existingEmail = existing[emailIndex];
-          if (/[A-Z]/.test(existingEmail) && existingEmail.toLowerCase() === email) {
-            seen.set(key, row); // replace old row with lowercase email version
-          }
+        const existingEmail = emailIndex !== -1 ? existing[emailIndex] : '';
+        if (email && /[A-Z]/.test(existingEmail) && existingEmail.toLowerCase() === email) {
+          seen.set(key, row);
         }
       } else {
         seen.set(key, row);
       }
     }
-
     cleaned = Array.from(seen.values());
   }
 
   return { rows: cleaned, originalCount, cleanCount: cleaned.length };
 }
-
 
 /* ============================
    ⚙️ Button Logic
@@ -197,7 +220,7 @@ copyBtn.addEventListener('click', async () => {
 });
 
 /* ============================
-   📥 Drag & Drop.
+   📥 Drag & Drop
 ============================ */
 const dropArea = document.getElementById('dropArea');
 ['dragenter', 'dragover'].forEach(ev =>
