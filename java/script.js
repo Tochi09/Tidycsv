@@ -82,34 +82,42 @@ function cleanRows(rows, opts) {
   const originalCount = rows.length;
   let cleaned = rows.map(r => r.map(c => c.trim()));
 
-  // Trim & normalize text
+  // Step 1: Normalize cells
   if (opts.trimSpaces) {
     cleaned = cleaned.map(row => row.map(cell => normalizeCell(cell)));
   }
 
-  // Remove empty rows
+  // Step 2: Remove empty rows
   if (opts.removeEmpty) {
     cleaned = cleaned.filter(row => row.join('').trim().length > 0);
   }
 
-  // Dedupe logic
+  // Step 3: Smart deduplication
   if (opts.removeDuplicates) {
-    const seen = new Map(); // store lowercase key → row
+    const seen = new Map();
+
     for (let row of cleaned) {
-      const key =
+      // Try to find an email column (first one with @)
+      const emailIndex = row.findIndex(v => v.includes('@'));
+      const email = emailIndex !== -1 ? (row[emailIndex] || '').toLowerCase().trim() : '';
+
+      // Create a flexible key
+      let key = email || (
         opts.dedupeColumn === null
           ? row.join('|').toLowerCase()
-          : (row[opts.dedupeColumn] || '').toLowerCase().trim();
+          : (row[opts.dedupeColumn] || '').toLowerCase().trim()
+      );
 
-      // If duplicate already exists, check for lowercase email preference
+      // Also normalize non-email data for fair comparison
+      key = key.replace(/[\s.,'"-]+/g, ' ').trim();
+
       if (seen.has(key)) {
         const existing = seen.get(key);
-        const emailIndex = (opts.dedupeColumn !== null) ? opts.dedupeColumn : row.findIndex(v => v.includes('@'));
-        if (emailIndex !== -1) {
-          const newEmail = row[emailIndex];
+
+        // If same email but one has uppercase → prefer lowercase
+        if (email && existing[emailIndex]) {
           const oldEmail = existing[emailIndex];
-          if (newEmail && oldEmail && /[A-Z]/.test(oldEmail) && oldEmail.toLowerCase() === newEmail.toLowerCase()) {
-            // Replace uppercase email with lowercase version
+          if (/[A-Z]/.test(oldEmail) && oldEmail.toLowerCase() === email) {
             seen.set(key, row);
           }
         }
@@ -117,11 +125,13 @@ function cleanRows(rows, opts) {
         seen.set(key, row);
       }
     }
+
     cleaned = Array.from(seen.values());
   }
 
   return { rows: cleaned, originalCount, cleanCount: cleaned.length };
 }
+
 
 /* ============================
    ⚙️ Button Logic
