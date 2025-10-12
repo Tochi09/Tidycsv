@@ -1,4 +1,4 @@
-// 🚀 Advanced CSV Cleaner — Handles quotes, commas, case normalization, deduping
+// 🚀 Advanced CSV Cleaner — Stable, Smart, and Privacy-Safe
 const fileInput = document.getElementById('fileInput');
 const textInput = document.getElementById('textInput');
 const cleanBtn = document.getElementById('cleanBtn');
@@ -8,51 +8,46 @@ const copyBtn = document.getElementById('copyBtn');
 const stats = document.getElementById('stats');
 
 /* ============================
-   🧠 CSV Parsing (Proper)
+   🧠 Robust CSV Parser
 ============================ */
 function parseCSV(text) {
   const rows = [];
   let row = [], current = '', inQuotes = false;
 
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
     const next = text[i + 1];
 
-    if (char === '"' && next === '"') { 
-      current += '"'; 
-      i++; 
-    } 
-    else if (char === '"') {
+    if (char === '"' && next === '"') {
+      current += '"';
+      i++;
+    } else if (char === '"') {
       inQuotes = !inQuotes;
-    } 
-    else if (char === ',' && !inQuotes) {
-      row.push(current.trim());
+    } else if (char === ',' && !inQuotes) {
+      row.push(current);
       current = '';
-    } 
-    else if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (current || row.length) {
-        row.push(current.trim());
-        rows.push(row);
-        row = [];
-        current = '';
-      }
-    } 
-    else {
+    } else if (char === '\n' && !inQuotes) {
+      row.push(current);
+      rows.push(row.map(v => v.trim()));
+      row = [];
+      current = '';
+    } else {
       current += char;
     }
   }
 
   if (current || row.length) {
-    row.push(current.trim());
-    rows.push(row);
+    row.push(current);
+    rows.push(row.map(v => v.trim()));
   }
 
-  // Remove blank lines
   return rows.filter(r => r.join('').trim().length > 0);
 }
 
 /* ============================
-   🧹 CSV to Text
+   🧹 Convert Back to CSV
 ============================ */
 function toCSV(rows) {
   return rows.map(row =>
@@ -70,7 +65,7 @@ function toCSV(rows) {
 function normalizeCell(value) {
   if (!value) return '';
   value = value.trim().replace(/\s+/g, ' ');
-  // Title Case only if it’s mostly alphabetic
+  // Proper case for mostly text
   if (/^[a-z\s]+$/i.test(value)) {
     return value
       .split(' ')
@@ -87,6 +82,7 @@ function cleanRows(rows, opts) {
   const originalCount = rows.length;
   let cleaned = rows.map(r => r.map(c => c.trim()));
 
+  // Trim & normalize text
   if (opts.trimSpaces) {
     cleaned = cleaned.map(row => row.map(cell => normalizeCell(cell)));
   }
@@ -96,23 +92,32 @@ function cleanRows(rows, opts) {
     cleaned = cleaned.filter(row => row.join('').trim().length > 0);
   }
 
-  // Dedupe (case-insensitive)
+  // Dedupe logic
   if (opts.removeDuplicates) {
-    const seen = new Set();
-    const deduped = [];
-    for (let i = 0; i < cleaned.length; i++) {
-      const row = cleaned[i];
+    const seen = new Map(); // store lowercase key → row
+    for (let row of cleaned) {
       const key =
         opts.dedupeColumn === null
           ? row.join('|').toLowerCase()
           : (row[opts.dedupeColumn] || '').toLowerCase().trim();
 
-      if (!seen.has(key)) {
-        seen.add(key);
-        deduped.push(row);
+      // If duplicate already exists, check for lowercase email preference
+      if (seen.has(key)) {
+        const existing = seen.get(key);
+        const emailIndex = (opts.dedupeColumn !== null) ? opts.dedupeColumn : row.findIndex(v => v.includes('@'));
+        if (emailIndex !== -1) {
+          const newEmail = row[emailIndex];
+          const oldEmail = existing[emailIndex];
+          if (newEmail && oldEmail && /[A-Z]/.test(oldEmail) && oldEmail.toLowerCase() === newEmail.toLowerCase()) {
+            // Replace uppercase email with lowercase version
+            seen.set(key, row);
+          }
+        }
+      } else {
+        seen.set(key, row);
       }
     }
-    cleaned = deduped;
+    cleaned = Array.from(seen.values());
   }
 
   return { rows: cleaned, originalCount, cleanCount: cleaned.length };
@@ -134,9 +139,7 @@ cleanBtn.addEventListener('click', () => {
 
   let rows = parseCSV(text);
   let header = null;
-  if (hasHeader && rows.length > 0) {
-    header = rows.shift();
-  }
+  if (hasHeader && rows.length > 0) header = rows.shift();
 
   const result = cleanRows(rows, { trimSpaces, removeEmpty, removeDuplicates, dedupeColumn });
   const finalRows = header ? [header, ...result.rows] : result.rows;
