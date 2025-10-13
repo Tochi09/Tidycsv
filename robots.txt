@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tidycsv.netlify.app/sitemap.xml
+https://tidycsv.netlify.app/sitemap.xml
