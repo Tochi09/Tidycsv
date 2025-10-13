@@ -8,4 +8,3 @@ Disallow: /test/
 
 Sitemap: https://tidycsv.netlify.app/sitemap.xml
 Sitemap: https://tidycsv.netlify.app/atom.xml
-
