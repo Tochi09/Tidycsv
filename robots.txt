@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
-https://tidycsv.netlify.app/sitemap.xml
+# Disallow admin or test pages (if you ever have any)
+Disallow: /admin/
+Disallow: /test/
+
+# Point search engines to your sitemap
+Sitemap: https://tidycsv.netlify.app/sitemap.xml
