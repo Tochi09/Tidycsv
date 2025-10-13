@@ -5,5 +5,7 @@ Allow: /
 Disallow: /admin/
 Disallow: /test/
 
-# Point search engines to your sitemap
+
 Sitemap: https://tidycsv.netlify.app/sitemap.xml
+Sitemap: https://tidycsv.netlify.app/atom.xml
+
