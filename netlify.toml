@@ -1,9 +1,11 @@
 [build]
   publish = "."
+  command = ""
 
 [[plugins]]
-  package = "netlify-plugin-sitemap"
+  package = "@netlify/plugin-sitemap"
 
-  [plugins.inputs]
-  baseUrl = "https://tidycsv.netlify.app"
+[plugins.inputs]
+  buildDir = "dist"
   prettyURLs = true
+  baseUrl = "https://tidycsv.netlify.app"
